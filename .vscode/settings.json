@@ -4,9 +4,12 @@
         "asarray",
         "axhline",
         "axvline",
+        "bibfiles",
+        "bibtex",
         "labelcolor",
         "linestyle",
         "linspace",
+        "targetname",
         "twinx",
         "xlabel",
         "ylabel"

@@ -5,3 +5,6 @@ format: jb-book
 root: intro
 chapters:
 - file: basic
+- file: jax
+- file: jax_optimization
+
