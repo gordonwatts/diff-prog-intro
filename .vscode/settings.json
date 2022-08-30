@@ -1,8 +1,13 @@
 {
     "cSpell.words": [
         "argmax",
+        "asarray",
+        "axhline",
         "axvline",
+        "labelcolor",
+        "linestyle",
         "linspace",
+        "twinx",
         "xlabel",
         "ylabel"
     ]
