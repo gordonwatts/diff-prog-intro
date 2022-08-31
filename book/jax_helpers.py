@@ -1,7 +1,8 @@
 import jax
 import jax.numpy as jnp
+import numpy as numpy
 
-from samples import data_sig, data_back
+from samples import data_sig, data_back, sig_avg, sig_width
 
 # Convert the data to jax arrays
 data_sig_j = jnp.asarray(data_sig)
@@ -22,3 +23,16 @@ def sig_sqrt_b(cut):
     B = jnp.sum(wts_back)
 
     return S/jnp.sqrt(B)
+
+data_sig_big = numpy.random.normal(sig_avg, sig_width, len(data_back))
+
+training_data = jnp.concatenate((data_back, data_sig))
+training_truth = jnp.concatenate((jnp.zeros(len(data_back)), jnp.ones(len(data_sig))))
+
+def predict(data, c: float):
+    'Predict if background or signal depending on the cut'
+    return erf(data, c)
+
+def loss(c: float, data = training_data, truth = training_truth):
+    'Calculate the standard distance loss'
+    return jnp.sum((predict(data, c) - truth)**2)
