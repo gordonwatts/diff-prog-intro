@@ -9,6 +9,8 @@
         "labelcolor",
         "linestyle",
         "linspace",
+        "numpy",
+        "tableofcontents",
         "targetname",
         "twinx",
         "xlabel",
