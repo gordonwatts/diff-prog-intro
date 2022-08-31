@@ -16,3 +16,4 @@ This book is me trying to teach myself step-by-step. So it is very basic! Commen
 * Figure out how to make a hard selection cut (`data[data > cut]`) differentiable w.r.t `cut`.
 * Write a very simple gradient decent loop using `JAX` tools to solve this problem.
 * Compare $S/\sqrt{B}$ to using a more standard ML loss function.
+* Explore how predicate push-down into a system that does not understand auto-diff might work with differentiable programming.
