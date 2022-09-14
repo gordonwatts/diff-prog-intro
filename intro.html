@@ -125,6 +125,16 @@ const thebe_selector_output = ".output, .cell_output"
    Gradient Descent
   </a>
  </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ml_loss.html">
+   Using a ML-like Loss Function
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dumb_data_source.html">
+   Handling Simple Predicate Push-down
+  </a>
+ </li>
 </ul>
 
     </div>
@@ -352,15 +362,19 @@ operations. How do you make a selection cut that is differentiable. How do you u
 <li class="toctree-l1"><a class="reference internal" href="basic.html">The Simple Problem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jax.html">Using JAX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jax_optimization.html">Gradient Descent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_loss.html">Using a ML-like Loss Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dumb_data_source.html">Handling Simple Predicate Push-down</a></li>
 </ul>
 </div>
 <section id="goals">
 <h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
-<li><p>Construct a simple <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span> problem that needs to be optimiszed - a single selection cut, and a single signal and background. Solve it by brute force.</p></li>
+<li><p>Construct a simple <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span> problem that needs to be optimized - a single selection cut, and a single signal and background. Solve it by brute force.</p></li>
 <li><p>Learn the basics of <code class="docutils literal notranslate"><span class="pre">JAX</span></code> as a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> replacement.</p></li>
 <li><p>Figure out how to make a hard selection cut (<code class="docutils literal notranslate"><span class="pre">data[data</span> <span class="pre">&gt;</span> <span class="pre">cut]</span></code>) differentiable w.r.t <code class="docutils literal notranslate"><span class="pre">cut</span></code>.</p></li>
 <li><p>Write a very simple gradient decent loop using <code class="docutils literal notranslate"><span class="pre">JAX</span></code> tools to solve this problem.</p></li>
+<li><p>Compare <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span> to using a more standard ML loss function.</p></li>
+<li><p>Explore how predicate push-down into a system that does not understand auto-diff might work with differentiable programming.</p></li>
 </ul>
 </section>
 </section>

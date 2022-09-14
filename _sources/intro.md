@@ -11,8 +11,9 @@ This book is me trying to teach myself step-by-step. So it is very basic! Commen
 
 ## Goals
 
-* Construct a simple $S/\sqrt{B}$ problem that needs to be optimiszed - a single selection cut, and a single signal and background. Solve it by brute force.
+* Construct a simple $S/\sqrt{B}$ problem that needs to be optimized - a single selection cut, and a single signal and background. Solve it by brute force.
 * Learn the basics of `JAX` as a `numpy` replacement.
 * Figure out how to make a hard selection cut (`data[data > cut]`) differentiable w.r.t `cut`.
 * Write a very simple gradient decent loop using `JAX` tools to solve this problem.
-
+* Compare $S/\sqrt{B}$ to using a more standard ML loss function.
+* Explore how predicate push-down into a system that does not understand auto-diff might work with differentiable programming.
