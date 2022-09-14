@@ -9,6 +9,7 @@
         "labelcolor",
         "linestyle",
         "linspace",
+        "loadtxt",
         "numpy",
         "tableofcontents",
         "targetname",
