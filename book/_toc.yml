@@ -9,3 +9,4 @@ chapters:
 - file: jax_optimization
 - file: ml_loss
 - file: dumb_data_source
+- file: using_nn

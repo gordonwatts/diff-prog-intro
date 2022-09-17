@@ -6,15 +6,21 @@
         "axvline",
         "bibfiles",
         "bibtex",
+        "cmap",
         "labelcolor",
         "linestyle",
+        "linewidths",
         "linspace",
         "loadtxt",
         "numpy",
+        "preds",
+        "PRNG",
         "tableofcontents",
         "targetname",
         "twinx",
+        "xbins",
         "xlabel",
+        "ybins",
         "ylabel"
     ]
 }

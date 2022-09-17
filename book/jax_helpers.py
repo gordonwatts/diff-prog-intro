@@ -1,3 +1,4 @@
+from typing import Dict
 import jax
 import jax.numpy as jnp
 import numpy as numpy
@@ -36,3 +37,36 @@ def predict(data, c: float):
 def loss(c: float, data = training_data, truth = training_truth):
     'Calculate the standard distance loss'
     return jnp.sum((predict(data, c) - truth)**2)
+
+# Series of helpers for ML
+def train(model, key, epochs, training_data, training_truth) -> Dict:
+    # Init
+    learning_rate = jnp.array(0.002)
+
+    # Initialize the weights
+    key, _ = jax.random.split(key)
+    params = model.init(key, training_data)
+
+    def NegLogLoss(weights, input_data, actual):
+        'Calc the loss function'
+        preds = model.apply(weights, key, input_data)
+        preds = preds.squeeze()
+        preds = jax.nn.sigmoid(preds)
+        return (- actual * jnp.log(preds) - (1 - actual) * jnp.log(1 - preds)).mean()
+
+    def UpdateWeights(weights,gradients):
+        return weights - learning_rate * gradients
+
+    # Build the loss function
+    neg_loss_func = jax.jit(jax.value_and_grad(NegLogLoss))
+
+    # Train
+    report_interval = int(epochs / 10)
+    for i in range(1,epochs+1):
+        loss, param_grads = neg_loss_func(params, training_data, training_truth)
+        params = jax.tree_map(UpdateWeights, params, param_grads)
+
+        if i%report_interval == 0 or i == 1:
+            print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
+
+    return params

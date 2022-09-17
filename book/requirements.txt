@@ -1,5 +1,7 @@
-jupyter-book
-matplotlib
 numpy
 jax[cpu]
+dm-haiku
+matplotlib
+
 ghp-import
+jupyter-book
