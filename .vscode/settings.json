@@ -7,6 +7,7 @@
         "bibfiles",
         "bibtex",
         "cmap",
+        "dtype",
         "labelcolor",
         "linestyle",
         "linewidths",
