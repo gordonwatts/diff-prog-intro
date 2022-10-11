@@ -1,7 +1,10 @@
 numpy
 jax[cpu]
 dm-haiku
+optax
 matplotlib
 
 ghp-import
 jupyter-book
+flake8
+black
