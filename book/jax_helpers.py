@@ -1,3 +1,4 @@
+from cmath import isnan
 from typing import Dict
 import jax
 import jax.numpy as jnp
@@ -71,9 +72,6 @@ def train(
         preds = jax.nn.sigmoid(preds)
         return (-actual * jnp.log(preds) - (1 - actual) * jnp.log(1 - preds)).mean()
 
-    def UpdateWeights(weights, gradients):
-        return weights - ml_learning_rate * gradients
-
     # Init the optimizer
     opt_init, opt_update = optax.chain(optax.adam(learning_rate), optax.zero_nans())
     opt_state = opt_init(params)
@@ -83,18 +81,30 @@ def train(
 
     # Train
     report_interval = int(epochs / 10)
+    old_params = None
+    old_loss = 1000
+    bad_loss = False
     for i in range(1, epochs + 1):
         loss, param_grads = neg_loss_func(params, training_data, training_truth)
         updates, opt_state = opt_update(param_grads, opt_state, params)
         params = optax.apply_updates(params, updates)
 
-        if i % report_interval == 0 or i == 1 or math.isnan(loss):
-            print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
-            if "SelectionCut" in params:
-                print("updates", updates["SelectionCut"])
-                print("params", params["SelectionCut"])
-
         if math.isnan(loss):
+            print("WARNING: Loss is nan - returning last good epoch")
+            params = old_params
+            loss = old_loss
+            bad_loss = True
+
+        if i % report_interval == 0 or i == 1 or bad_loss:
+            print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
+            # if "SelectionCut" in params:
+            #     print("updates", updates["SelectionCut"])
+            #     print("params", params["SelectionCut"])
+
+        if bad_loss:
             break
+
+        old_params = params
+        old_loss = loss
 
     return params
