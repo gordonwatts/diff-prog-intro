@@ -65,19 +65,20 @@ def train(
     key, _ = jax.random.split(key)
     params = model.init(key, training_data)
 
-    def NegLogLoss(weights, input_data, actual):
-        "Calc the loss function"
-        preds = model.apply(weights, key, input_data)
-        preds = preds.squeeze()
-        preds = jax.nn.sigmoid(preds)
-        return (-actual * jnp.log(preds) - (1 - actual) * jnp.log(1 - preds)).mean()
-
     # Init the optimizer
     opt_init, opt_update = optax.chain(optax.adam(learning_rate), optax.zero_nans())
     opt_state = opt_init(params)
 
     # Build the loss function
-    neg_loss_func = jax.jit(jax.value_and_grad(NegLogLoss))
+    def loss_func(weights, input_data, actual):
+        "Calc the loss function"
+        preds = model.apply(weights, key, input_data)
+        preds = preds.squeeze()
+        preds = jax.nn.sigmoid(preds)
+        #        return (-actual * jnp.log(preds) - (1 - actual) * jnp.log(1 - preds)).mean()
+        return optax.softmax_cross_entropy(preds, actual)
+
+    neg_loss_func = jax.jit(jax.value_and_grad(loss_func))
 
     # Train
     report_interval = int(epochs / 10)
