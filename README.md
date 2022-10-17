@@ -7,7 +7,7 @@ Because this uses JAX, it can't run on windows directly (you have to get XLA run
 ## Publishing:
 
 ```bash
-jupyter-book build
+jupyter-book build book/
 cd book
 ghp-import -n -p -f _build/html
 ```

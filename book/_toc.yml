@@ -10,3 +10,4 @@ chapters:
 - file: ml_loss
 - file: dumb_data_source
 - file: using_nn
+- file: cut_then_nn
