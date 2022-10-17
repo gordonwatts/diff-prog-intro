@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/jupyter_cache/executors/utils.py", line 51, in single_nb_execution
+    executenb(
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+  File "/usr/lib/python3.8/asyncio/base_events.py", line 616, in run_until_complete
+    return future.result()
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/gwatts/code/diff-prog-intro/.venv/lib/python3.8/site-packages/nbclient/client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+def plot_inference(data, results, value, title, summary):
+    good_data = data[results == value]
+    plt.scatter(good_data[:, 0], good_data[:, 1], color='green', label='correct')
+    bad_data = data[results != value]
+    plt.scatter(bad_data[:, 0], bad_data[:, 1], color='red', label='misclassified')
+    plt.title(f'{title} - {summary}')
+    plt.legend()
+
+def plot_in_and_out(i_signal, i_background, cuts = None, summary):
+    plot_inference(testing_signal, i_signal, 1.0, 'Signal', summary)
+    if cuts is not None:
+        plt.axhline(cuts[1])
+        plt.axvline(cuts[0])
+    plt.show()
+    plot_inference(testing_background, i_background, 0.0, 'Background', summary)
+    if cuts is not None:
+        plt.axhline(cuts[1])
+        plt.axvline(cuts[0])
+    plt.show()
+
+plot_in_and_out(infer_signal, infer_background, trained_cut_values, "Cut + MLP Network")
+------------------
+
+[0;36m  Cell [0;32mIn [20], line 9[0;36m[0m
+[0;31m    def plot_in_and_out(i_signal, i_background, cuts = None, summary):[0m
+[0m                        ^[0m
+[0;31mSyntaxError[0m[0;31m:[0m non-default argument follows default argument
+
+SyntaxError: non-default argument follows default argument (366743552.py, line 9)
+

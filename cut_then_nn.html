@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Adding a cut in front of an NN &#8212; Understanding Simple Differentiable Programming</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Looking for the Signal with a NN" href="using_nn.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Understanding Simple Differentiable Programming</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Exploring Differentiable Programming
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="basic.html">
+   The Simple Problem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="jax.html">
+   Using JAX
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="jax_optimization.html">
+   Gradient Descent
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ml_loss.html">
+   Using a ML-like Loss Function
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dumb_data_source.html">
+   Handling Simple Predicate Push-down
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="using_nn.html">
+   Looking for the Signal with a NN
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Adding a cut in front of an NN
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-launch-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Launch interactive content">
+      <i class="fas fa-rocket"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://mybinder.org/v2/gh/gordonwatts/diff-prog-intro/main?urlpath=tree/book/cut_then_nn.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Launch on Binder"
+>
+  
+
+<span class="headerbtn__icon-container">
+  
+    <img src="_static/images/logo_binder.svg">
+  </span>
+<span class="headerbtn__text-container">Binder</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/gordonwatts/diff-prog-intro"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/gordonwatts/diff-prog-intro/issues/new?title=Issue%20on%20page%20%2Fcut_then_nn.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/cut_then_nn.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#building-blocks-for-the-network">
+   Building blocks for the network
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#multiplication-module">
+     Multiplication Module
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#selection-cut">
+     Selection Cut
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#concatenate">
+     Concatenate
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#test-the-selection-cut">
+     Test the Selection Cut
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#mlp-selection-cut-network">
+   MLP + Selection Cut Network
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#train">
+   Train
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#examining-the-training">
+   Examining the Training
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Adding a cut in front of an NN</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#building-blocks-for-the-network">
+   Building blocks for the network
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#multiplication-module">
+     Multiplication Module
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#selection-cut">
+     Selection Cut
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#concatenate">
+     Concatenate
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#test-the-selection-cut">
+     Test the Selection Cut
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#mlp-selection-cut-network">
+   MLP + Selection Cut Network
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#train">
+   Train
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#examining-the-training">
+   Examining the Training
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="adding-a-cut-in-front-of-an-nn">
+<h1>Adding a cut in front of an NN<a class="headerlink" href="#adding-a-cut-in-front-of-an-nn" title="Permalink to this headline">#</a></h1>
+<p>We’ve shown we can train a cut (or <code class="docutils literal notranslate"><span class="pre">erf</span></code>) and train a NN to separate signal from background. Can we do both? Here we will add two cuts in front of the same NN we used last time.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">samples</span> <span class="kn">import</span> <span class="n">data_back</span><span class="p">,</span> <span class="n">sig_avg</span><span class="p">,</span> <span class="n">sig_width</span>
+<span class="kn">from</span> <span class="nn">jax_helpers</span> <span class="kn">import</span> <span class="n">erf</span><span class="p">,</span> <span class="n">train</span>
+<span class="kn">import</span> <span class="nn">haiku</span> <span class="k">as</span> <span class="nn">hk</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Load up the 2D data. This is identical to what we’ve done before.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">signal_data</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span> <span class="p">[</span><span class="mi">40000</span><span class="p">])</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">background_data</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mf">9.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">]]),</span> <span class="p">[</span><span class="mi">40000</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Build the training and truth data. Keep the testing and training data the same, and the full data sample for now because we are lazy.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal_data</span><span class="p">,</span> <span class="n">background_data</span><span class="p">))</span>
+<span class="n">all_truth</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">signal_data</span><span class="p">)),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">background_data</span><span class="p">))))</span>
+
+<span class="n">training_data</span> <span class="o">=</span> <span class="n">all_data</span>
+<span class="n">training_truth</span> <span class="o">=</span> <span class="n">all_truth</span>
+
+<span class="n">testing_signal</span> <span class="o">=</span> <span class="n">signal_data</span>
+<span class="n">testing_background</span> <span class="o">=</span> <span class="n">background_data</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="building-blocks-for-the-network">
+<h2>Building blocks for the network<a class="headerlink" href="#building-blocks-for-the-network" title="Permalink to this headline">#</a></h2>
+<p>We will use the same network MLP as previous, but will add a parallel network that implements the cut. We’ll multiply the result of this network by the MLP result, so the cut can <em>turn on-turn off</em> the MLP output:</p>
+<div class="math notranslate nohighlight">
+\[
+P = \textrm{erf}(x_1)*\textrm{erf}(x_2)*\textrm{MLP}({x_i})
+\]</div>
+<p>In order to do this, however, we have to build some new modules that are useful with <code class="docutils literal notranslate"><span class="pre">haiku</span></code>. We’ll need:</p>
+<ul class="simple">
+<li><p>Multiplication - <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">-&gt;</span> <span class="pre">1</span></code> multiplies each row of the input vector together (implementes the <span class="math notranslate nohighlight">\(*\)</span> operators above).</p></li>
+<li><p>Selection Cut - implements the selection cut using the <code class="docutils literal notranslate"><span class="pre">erf</span></code> we used earlier in an earlier chapter.</p></li>
+<li><p>Concatenate - takes two other modules and just concatenates the outputs of each together. This is an infrastructure module and it is because we need the two selection cuts and the MLP to appear as a single row as input to the multiplication module.</p></li>
+</ul>
+<section id="multiplication-module">
+<h3>Multiplication Module<a class="headerlink" href="#multiplication-module" title="Permalink to this headline">#</a></h3>
+<p>Implement a simple module that multiplies everything in a row together.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MultiplyRow</span><span class="p">(</span><span class="n">hk</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="s1">&#39;Multiply all elements of input together&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Multiply&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="s1">&#39;Multiply all elements of x&#39;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="selection-cut">
+<h3>Selection Cut<a class="headerlink" href="#selection-cut" title="Permalink to this headline">#</a></h3>
+<p>We’ll use the code we used before in order to implement the error function, and allow us to properly set cuts. Given what we’ve learned, the initial value of the cuts are a bit tricky:</p>
+<ul class="simple">
+<li><p>They need to be set somewhere in the bulk of the data</p></li>
+<li><p>An easy stradegy might be to take the mean of the training data that is handed in initially as <code class="docutils literal notranslate"><span class="pre">x</span></code> in the <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method. See below for more discussion.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Selection</span><span class="p">(</span><span class="n">hk</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply a selection cut to each input, output is a weight,</span>
+<span class="sd">    zero if the cut would reject, one if it would not&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">initial_cuts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SelectionCut&quot;</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_cuts</span> <span class="o">=</span> <span class="n">initial_cuts</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="s2">&quot;Apply a selection cut for everything&quot;</span>
+
+        <span class="c1"># See if we have a decent set of initializers</span>
+        <span class="n">cuts_initial</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_cuts</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_cuts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">cuts_initial</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Incorrect number of initial cut values specified - need </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Get the parameters to apply here</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
+            <span class="s2">&quot;cuts&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">jnp</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="k">lambda</span> <span class="n">shp</span><span class="p">,</span> <span class="n">dtyp</span><span class="p">:</span> <span class="n">cuts_initial</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Next, apply the cut</span>
+        <span class="n">wts</span> <span class="o">=</span> <span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">cuts</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+        <span class="k">return</span> <span class="n">wts</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="concatenate">
+<h3>Concatenate<a class="headerlink" href="#concatenate" title="Permalink to this headline">#</a></h3>
+<p>This layer is odd because it takes as input two other layers, pushes the same inputs to each layer, and then returns the outputs concatinated together. So it doesn’t exactly follow the previous patterns (or standard <code class="docutils literal notranslate"><span class="pre">haiku</span></code> patterns for that matter). We will only implement this for starting from the same data - because I do not know how to do this otherwise.</p>
+<ul class="simple">
+<li><p>If this had to be generalized, one could change the <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method to have two inputs, rather than listing them in the <code class="docutils literal notranslate"><span class="pre">ctor</span></code> - but that depends on weather the <code class="docutils literal notranslate"><span class="pre">__call__</span></code> is called under any other circumstances than network initalization.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ModuleConcat</span><span class="p">(</span><span class="n">hk</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Concatenate the outputs of two different networks that</span>
+<span class="sd">    use the same data&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">hk</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ModuleConcat&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span> <span class="o">=</span> <span class="n">layers</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">layer_output</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span><span class="p">]</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">layer_output</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">c</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-the-selection-cut">
+<h3>Test the Selection Cut<a class="headerlink" href="#test-the-selection-cut" title="Permalink to this headline">#</a></h3>
+<p>The error function has an issue that it has long plateaus when it is away from where it has “an effect”. If you do, the training grinds to a halt - which happened initally. So we can’t initialize with a value that is far outside where it might be cutting. In short - we have to choose our initial values carefully - we pick a randome spot along the x-axis and expect minimzation to get us to the right spot. Lets take a look at this, first by showing how the error function squared looks for a cut of -2.5 and the data is from -10 to 10.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">select_model</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">MultiplyRow</span><span class="p">()(</span><span class="n">Selection</span><span class="p">([</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">])(</span><span class="n">x</span><span class="p">)))</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">select_model</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">training_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">select_model</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">training_data</span><span class="p">)</span>
+
+<span class="n">cut_range_values</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="n">run_eval</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">select_model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cut_range_values</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cut_range_values</span><span class="p">,</span> <span class="n">run_eval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;ERF^2 output (cut at -2.5)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_16_0.png" src="_images/cut_then_nn_16_0.png" />
+</div>
+</div>
+<p>This is as expected from previous parts of the notebooks. Thinking about the derivative - if all your data sits out at 200, and the cut is down here at -2.5, the derivative will be zero. We can see that by looking at the derivative.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">optax</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="n">select_model</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">training_data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">calc_value</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">select_model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">training_data</span><span class="p">)</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">preds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">optax</span><span class="o">.</span><span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">training_truth</span><span class="p">)</span>
+
+
+<span class="n">cut_range_values</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="n">cut_loss</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">calc_value</span><span class="p">({</span><span class="s2">&quot;SelectionCut&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;cuts&quot;</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">])}})</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cut_range_values</span>
+<span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cut_range_values</span><span class="p">,</span> <span class="n">cut_loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cut Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_18_0.png" src="_images/cut_then_nn_18_0.png" />
+</div>
+</div>
+<p>Note how it is basically flat around -10 and +10. If we were to extend the plot even further, it would look similar. In short - no gradient!</p>
+<p>Note that we’ve taken a short cut here and used our knowledge of the training data to determine that -2.5 is good for both cuts. If this were really a new problem we’d need to evaluate this with each cut individually - like use the mean value. In reality any value where there is data should be fine - which suggests an easy way to start (say the median of each data for a straight up cut?).</p>
+<p>As further check the error function is doing what is expected, here are the two error functions multiplied together for two cuts on the training data (both signal and background):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preds</span> <span class="o">=</span> <span class="n">select_model</span><span class="o">.</span><span class="n">apply</span><span class="p">({</span><span class="s1">&#39;SelectionCut&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;cuts&#39;</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="o">-</span><span class="mf">3.4</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.6</span><span class="p">])}},</span> <span class="n">key</span><span class="p">,</span> <span class="n">training_data</span><span class="p">)</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Prediction Value&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_20_0.png" src="_images/cut_then_nn_20_0.png" />
+</div>
+</div>
+<p>Lets try a training the selection cuts and see how the training algorithm works with this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">select_params</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">select_model</span><span class="p">,</span>
+    <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span>
+    <span class="n">training_truth</span><span class="o">=</span><span class="n">training_truth</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 450008.03, epoch: 1
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449880.38, epoch: 100
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449746.75, epoch: 200
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449610.03, epoch: 300
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449472.38, epoch: 400
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449336.38, epoch: 500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449205.22, epoch: 600
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449082.69, epoch: 700
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 448972.72, epoch: 800
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 448879.00, epoch: 900
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 448803.69, epoch: 1000
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span> <span class="p">(</span><span class="n">select_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;SelectionCut&#39;: {&#39;cuts&#39;: DeviceArray([-0.6565423 , -0.51615274], dtype=float32)}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>The cuts are reasonable for the data, as can be seen on this scatter plot:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_contour</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">counts</span><span class="p">,</span><span class="n">xbins</span><span class="p">,</span><span class="n">ybins</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">((</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span><span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">xbins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">xbins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">ybins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ybins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">70</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">100</span><span class="p">])</span>
+
+<span class="n">plot_contour</span><span class="p">(</span><span class="n">signal_data</span><span class="p">)</span>
+<span class="n">plot_contour</span><span class="p">(</span><span class="n">background_data</span><span class="p">)</span>
+<span class="n">cut_values</span> <span class="o">=</span> <span class="n">select_params</span><span class="p">[</span><span class="s1">&#39;SelectionCut&#39;</span><span class="p">][</span><span class="s1">&#39;cuts&#39;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">cut_values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">cut_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_25_0.png" src="_images/cut_then_nn_25_0.png" />
+</div>
+</div>
+<p>In order to get the training to work efficiently, I had add the Adam optimizer to the training loop above. That also meant what was taking a lot more than 20K training now takes about 1000 (and it hadn’t reached the optimal state by 20K either).</p>
+</section>
+</section>
+<section id="mlp-selection-cut-network">
+<h2>MLP + Selection Cut Network<a class="headerlink" href="#mlp-selection-cut-network" title="Permalink to this headline">#</a></h2>
+<p>Build the forward network that combines all of this now.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">FeedForward</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># The NN training</span>
+    <span class="n">mlp</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">output_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># The selection</span>
+    <span class="n">selection</span> <span class="o">=</span> <span class="n">Selection</span><span class="p">(</span><span class="n">initial_cuts</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+    <span class="c1"># Now the concat. Both these operate on the same input data (the tuple of</span>
+    <span class="c1"># values) - which is required for this concat to work.</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">ModuleConcat</span><span class="p">([</span><span class="n">mlp</span><span class="p">,</span> <span class="n">selection</span><span class="p">])</span>
+
+    <span class="c1"># And then the multiply</span>
+    <span class="n">final</span> <span class="o">=</span> <span class="n">MultiplyRow</span><span class="p">()</span>
+
+    <span class="c1"># And put them together in the proper way</span>
+    <span class="k">return</span> <span class="n">final</span><span class="p">(</span><span class="n">combined</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">FeedForward</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train">
+<h2>Train<a class="headerlink" href="#train" title="Permalink to this headline">#</a></h2>
+<p>The training loop is the same as others we’ve used:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> 
+    <span class="n">epochs</span> <span class="o">=</span> <span class="mi">40000</span><span class="p">,</span>
+    <span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span>
+    <span class="n">training_truth</span><span class="o">=</span><span class="n">training_truth</span><span class="p">,</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.0002</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 449200.66, epoch: 1
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 442189.28, epoch: 4000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 440938.69, epoch: 8000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 440314.22, epoch: 12000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439975.09, epoch: 16000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439773.81, epoch: 20000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439667.97, epoch: 24000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439608.62, epoch: 28000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439573.06, epoch: 32000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439553.41, epoch: 36000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NegLogLoss : 439545.34, epoch: 40000
+</pre></div>
+</div>
+</div>
+</div>
+<p>When compared to the straight-up training of the MLP found in the <a class="reference internal" href="using_nn.html#training-mlp-only"><span class="std std-ref">previous chapter</span></a>, this is a lot slower:</p>
+<ul class="simple">
+<li><p>Slower to get the loss down. The comparison can be made directly here - because the loss calculation is identical in the two cases.</p></li>
+</ul>
+<p>Over all on a comparison laptop, it was 9.5 minutes to do 10K epochs here, and 2 minutes to do 2000 there - so about the same. At the end of 10K trainings however, the loss for this combined cut and MLP network is about at where the MLP only training was at 400 epochs. Even at the end of 40K iterations and 40 minutes, it doesn’t get as low a loss as the simple MLP training.</p>
+<p>In short, using the multiplyer method may not be the most efficient way to train here. We can plot the output and look at where it pushes the cuts and the MLP on its own (I live `haiku), to see a bit more about what is going on.</p>
+<p>First the raw output:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_it</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lbl</span><span class="p">):</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="c1"># preds = jax.nn.sigmoid(preds)</span>
+    <span class="c1"># preds = jnp.log(preds)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lbl</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="n">plot_it</span><span class="p">(</span><span class="n">signal_data</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">)</span>
+<span class="n">plot_it</span><span class="p">(</span><span class="n">background_data</span><span class="p">,</span> <span class="s2">&quot;background&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Prediction Values&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_32_0.png" src="_images/cut_then_nn_32_0.png" />
+</div>
+</div>
+<p>I had to shift from negative log loss function to <code class="docutils literal notranslate"><span class="pre">optax</span></code>’s <code class="docutils literal notranslate"><span class="pre">softmax_cross_entropy</span></code> in order to make this work. The reason is that when you hit values of about -45 or so for predicted values, your negative log heads off towards negative infinity.</p>
+<p>Which brings up an interesting fact - compared to the plain old NN training, note that we go down to <span class="math notranslate nohighlight">\(-25000\)</span> in predictive values, where in the plain training it needs nothing beyond <span class="math notranslate nohighlight">\(-40\)</span> or so!</p>
+</section>
+<section id="examining-the-training">
+<h2>Examining the Training<a class="headerlink" href="#examining-the-training" title="Permalink to this headline">#</a></h2>
+<p>First, lets take a look at the cut parameters to see where they ended up (remember, they were initialized to <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trained_cut_values</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;SelectionCut&#39;</span><span class="p">][</span><span class="s1">&#39;cuts&#39;</span><span class="p">]</span>
+<span class="n">trained_cut_values</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DeviceArray([-7.0540237, -7.1130943], dtype=float32)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Look how far off the actual cut training this is!</p>
+<p>Lets look at this graphically, showing a scatter plot of good and bad. First the prediction!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">test_preds</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">test_preds</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">test_preds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">test_preds</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_preds</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">test_preds</span>
+
+<span class="n">infer_signal</span> <span class="o">=</span> <span class="n">infer</span><span class="p">(</span><span class="n">testing_signal</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+<span class="n">infer_background</span> <span class="o">=</span> <span class="n">infer</span><span class="p">(</span><span class="n">testing_background</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, plot the classified and mis-classified signal and background</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_inference</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">summary</span><span class="p">):</span>
+    <span class="n">good_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">results</span> <span class="o">==</span> <span class="n">value</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">good_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">good_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;correct&#39;</span><span class="p">)</span>
+    <span class="n">bad_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">results</span> <span class="o">!=</span> <span class="n">value</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">bad_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bad_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;misclassified&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">summary</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">plot_in_and_out</span><span class="p">(</span><span class="n">i_signal</span><span class="p">,</span> <span class="n">i_background</span><span class="p">,</span> <span class="n">cuts</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="n">plot_inference</span><span class="p">(</span><span class="n">testing_signal</span><span class="p">,</span> <span class="n">i_signal</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;Signal&#39;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cuts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">cuts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">cuts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plot_inference</span><span class="p">(</span><span class="n">testing_background</span><span class="p">,</span> <span class="n">i_background</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;Background&#39;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cuts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">cuts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">cuts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plot_in_and_out</span><span class="p">(</span><span class="n">infer_signal</span><span class="p">,</span> <span class="n">infer_background</span><span class="p">,</span> <span class="n">trained_cut_values</span><span class="p">,</span> <span class="s2">&quot;Cut + MLP Network&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_41_0.png" src="_images/cut_then_nn_41_0.png" />
+<img alt="_images/cut_then_nn_41_1.png" src="_images/cut_then_nn_41_1.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_contour</span><span class="p">(</span><span class="n">signal_data</span><span class="p">)</span>
+<span class="n">plot_contour</span><span class="p">(</span><span class="n">background_data</span><span class="p">)</span>
+<span class="n">cut_values</span> <span class="o">=</span> <span class="n">select_params</span><span class="p">[</span><span class="s1">&#39;SelectionCut&#39;</span><span class="p">][</span><span class="s1">&#39;cuts&#39;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">trained_cut_values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">trained_cut_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_42_0.png" src="_images/cut_then_nn_42_0.png" />
+</div>
+</div>
+<p>It looks way apart from any signal!</p>
+<p>Lets take apart the performance of the two components (the cut and the NN), and look at their performance individually, but with the training values that are used here.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_mlp_only</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">hk</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">MLP</span><span class="p">(</span><span class="n">output_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">1</span><span class="p">])(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">model_selection_only</span> <span class="o">=</span> <span class="n">hk</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">MultiplyRow</span><span class="p">()(</span><span class="n">Selection</span><span class="p">(</span><span class="n">initial_cuts</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])(</span><span class="n">x</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_sig_b_infer</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">infer</span><span class="p">(</span><span class="n">testing_signal</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">),</span>
+        <span class="n">infer</span><span class="p">(</span><span class="n">testing_background</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="n">infer_s_mlp</span><span class="p">,</span> <span class="n">infer_b_mlp</span> <span class="o">=</span> <span class="n">do_sig_b_infer</span><span class="p">(</span><span class="n">model_mlp_only</span><span class="p">)</span>
+<span class="n">infer_s_sel</span><span class="p">,</span> <span class="n">infer_b_sel</span> <span class="o">=</span> <span class="n">do_sig_b_infer</span><span class="p">(</span><span class="n">model_selection_only</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_in_and_out</span><span class="p">(</span><span class="n">infer_s_mlp</span><span class="p">,</span> <span class="n">infer_b_mlp</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="s1">&#39;MLP Only&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_46_0.png" src="_images/cut_then_nn_46_0.png" />
+<img alt="_images/cut_then_nn_46_1.png" src="_images/cut_then_nn_46_1.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_in_and_out</span><span class="p">(</span><span class="n">infer_s_sel</span><span class="p">,</span> <span class="n">infer_b_sel</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="s1">&#39;Cuts Only&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/cut_then_nn_47_0.png" src="_images/cut_then_nn_47_0.png" />
+<img alt="_images/cut_then_nn_47_1.png" src="_images/cut_then_nn_47_1.png" />
+</div>
+</div>
+<p>Fascinating in that it tried to push the cuts all the way out to the end - way past where there was any signal. I wonder what made it keep moving them?</p>
+<p>The trend observed was generally this - each time I increased the number of training epochs the cuts were pushed further and further out.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="using_nn.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Looking for the Signal with a NN</p>
+        </div>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Gordon Watts<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
