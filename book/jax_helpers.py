@@ -1,9 +1,10 @@
-from typing import Dict
+from typing import Dict, Optional
 import jax
 import jax.numpy as jnp
 import numpy as numpy
 import math
 import optax
+from optax import Params
 
 from samples import data_sig, data_back, sig_avg, sig_width
 
@@ -57,44 +58,51 @@ def NegLogLoss(model, key, weights, input_data, actual):
 def train(
     model, key, epochs, training_data, training_truth, learning_rate=0.002
 ) -> Dict:
-    # Init
-    ml_learning_rate = jnp.array(learning_rate)
-
     # Initialize the weights
     key, _ = jax.random.split(key)
-    params = model.init(key, training_data)
-
-    def NegLogLoss(weights, input_data, actual):
-        "Calc the loss function"
-        preds = model.apply(weights, key, input_data)
-        preds = preds.squeeze()
-        preds = jax.nn.sigmoid(preds)
-        return (-actual * jnp.log(preds) - (1 - actual) * jnp.log(1 - preds)).mean()
-
-    def UpdateWeights(weights, gradients):
-        return weights - ml_learning_rate * gradients
+    params = model.init(key, training_data)  # type: Params
 
     # Init the optimizer
     opt_init, opt_update = optax.chain(optax.adam(learning_rate), optax.zero_nans())
     opt_state = opt_init(params)
 
     # Build the loss function
-    neg_loss_func = jax.jit(jax.value_and_grad(NegLogLoss))
+    def loss_func(weights, input_data, actual):
+        "Calc the loss function"
+        preds = model.apply(weights, key, input_data)
+        preds = preds.squeeze()
+        preds = jax.nn.sigmoid(preds)
+        return optax.softmax_cross_entropy(preds, actual)
+
+    neg_loss_func = jax.jit(jax.value_and_grad(loss_func))
 
     # Train
     report_interval = int(epochs / 10)
+    old_params: Optional[Params] = None
+    old_loss = 1000
+    bad_loss = False
     for i in range(1, epochs + 1):
         loss, param_grads = neg_loss_func(params, training_data, training_truth)
         updates, opt_state = opt_update(param_grads, opt_state, params)
         params = optax.apply_updates(params, updates)
 
-        if i % report_interval == 0 or i == 1 or math.isnan(loss):
-            print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
-            if "SelectionCut" in params:
-                print("updates", updates["SelectionCut"])
-                print("params", params["SelectionCut"])
-
         if math.isnan(loss):
+            print("WARNING: Loss is nan - returning last good epoch")
+            assert (
+                old_params is not None
+            ), "Fatal error - did not make it a single iteration"
+            params = old_params
+            loss = old_loss
+            bad_loss = True
+
+        if i % report_interval == 0 or i == 1 or bad_loss:
+            print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
+
+        if bad_loss:
             break
 
-    return params
+        old_params = params
+        old_loss = loss
+
+    assert params is not None
+    return params  # type:ignore
