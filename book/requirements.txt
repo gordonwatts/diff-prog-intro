@@ -3,6 +3,7 @@ jax[cpu]
 dm-haiku
 optax
 matplotlib
+tabulate
 
 ghp-import
 jupyter-book
