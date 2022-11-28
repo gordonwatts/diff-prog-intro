@@ -433,6 +433,7 @@ title="Print to PDF"
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">write_and_run</span> jax_cuts.py
 import jax.numpy as jnp
 import jax
+from typing import Callable
 </pre></div>
 </div>
 </div>
@@ -441,7 +442,7 @@ import jax
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">jax_helpers</span> <span class="kn">import</span> <span class="n">data_sig_j</span><span class="p">,</span> <span class="n">data_back_j</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">import</span> <span class="nn">functools</span> <span class="k">as</span> <span class="nn">ft</span>
 <span class="kn">import</span> <span class="nn">tabulate</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -467,7 +468,7 @@ def cut_erf(cut: float, data):
     return (jax.lax.erf(data - cut) + 1) / 2.0
 
 
-def sig_sqrt_b(f, sig_j, back_j):
+def loss_sig_sqrt_b(f, sig_j, back_j):
     &quot;Calculate the S/sqrt(B) for two 1D numpy arrays with the cut at cut.&quot;
 
     # Weight the data and then do the sum
@@ -503,15 +504,16 @@ def sig_sqrt_b(f, sig_j, back_j):
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_avg_weight</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_avg_weight</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">jnp</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">data_sig_j</span><span class="p">))</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Signal&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">jnp</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">data_back_j</span><span class="p">))</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Background&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cut Value&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Average Cut Weight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="n">plot_avg_weight</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">)</span>
+<span class="n">plot_avg_weight</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -519,16 +521,16 @@ def sig_sqrt_b(f, sig_j, back_j):
 <img alt="_images/different_cut_emulations_9_0.png" src="_images/different_cut_emulations_9_0.png" />
 </div>
 </div>
-<p>Next lets look at the <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span> background.</p>
+<p>Next lets look at the <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span> as our metric/loss function.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_s_sqrt_b</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sig_sqrt_b</span><span class="p">(</span><span class="n">ft</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">data_sig_j</span><span class="p">,</span> <span class="n">data_back_j</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values</span><span class="p">]))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_loss</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">metric</span><span class="p">(</span><span class="n">ft</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">data_sig_j</span><span class="p">,</span> <span class="n">data_back_j</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values</span><span class="p">]))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cut Value&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="n">plot_s_sqrt_b</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">)</span>
+<span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -560,7 +562,7 @@ def sig_sqrt_b(f, sig_j, back_j):
     <span class="n">g_values</span> <span class="o">=</span> <span class="p">[[</span><span class="n">c</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">c</span><span class="p">))]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values_ends</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">tabulate</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">g_values</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Cut Value&#39;</span><span class="p">,</span> <span class="s1">&#39;Gradient&#39;</span><span class="p">],</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">)</span>
 
-<span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">sig_sqrt_b</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
+<span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -571,16 +573,16 @@ def sig_sqrt_b(f, sig_j, back_j):
 <tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">    Gradient</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: right;">   -18.0856</td><td style="text-align: right;"> 3.23895e-08</td></tr>
-<tr><td style="text-align: right;">   -17.7188</td><td style="text-align: right;"> 2.60402e-07</td></tr>
-<tr><td style="text-align: right;">   -17.3521</td><td style="text-align: right;"> 1.60752e-06</td></tr>
-<tr><td style="text-align: right;">   -16.9854</td><td style="text-align: right;"> 7.64088e-06</td></tr>
-<tr><td style="text-align: right;">   -16.6187</td><td style="text-align: right;"> 2.80835e-05</td></tr>
-<tr><td style="text-align: right;">    16.7523</td><td style="text-align: right;">-6.30805e-26</td></tr>
-<tr><td style="text-align: right;">    17.119 </td><td style="text-align: right;">-3.96212e-28</td></tr>
-<tr><td style="text-align: right;">    17.4857</td><td style="text-align: right;">-2.1521e-30 </td></tr>
-<tr><td style="text-align: right;">    17.8525</td><td style="text-align: right;">-1.01308e-32</td></tr>
-<tr><td style="text-align: right;">    18.2192</td><td style="text-align: right;">-4.14167e-35</td></tr>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;"> 1.26034e-06</td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;"> 9.04523e-06</td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;"> 5.07146e-05</td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;"> 0.000223244</td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;"> 0.000777305</td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;">-4.99837e-29</td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;">-2.58265e-31</td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;">-1.15567e-33</td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;">-4.43999e-36</td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;">-0          </td></tr>
 </tbody>
 </table></div></div>
 </div>
@@ -592,7 +594,7 @@ def sig_sqrt_b(f, sig_j, back_j):
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">write_and_run</span> -a jax_cuts.py
 
 
-def x_entropy(f, sig_j, back_j):
+def loss_x_entropy(f, sig_j, back_j):
     &#39;&#39;&#39;Binary x-entropy for this function
 
     Args:
@@ -609,13 +611,7 @@ def x_entropy(f, sig_j, back_j):
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_x_entropy</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_entropy</span><span class="p">(</span><span class="n">ft</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">data_sig_j</span><span class="p">,</span> <span class="n">data_back_j</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x_values</span><span class="p">]))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cut Value&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Binary x-entropy&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">plot_x_entropy</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">,</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -626,7 +622,7 @@ def x_entropy(f, sig_j, back_j):
 <p>And the gradient:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">x_entropy</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -637,20 +633,75 @@ def x_entropy(f, sig_j, back_j):
 <tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">     Gradient</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: right;">   -18.0856</td><td style="text-align: right;"> -6.58401    </td></tr>
-<tr><td style="text-align: right;">   -17.7188</td><td style="text-align: right;"> -9.77402    </td></tr>
-<tr><td style="text-align: right;">   -17.3521</td><td style="text-align: right;">-11.1058     </td></tr>
-<tr><td style="text-align: right;">   -16.9854</td><td style="text-align: right;">-12.7921     </td></tr>
-<tr><td style="text-align: right;">   -16.6187</td><td style="text-align: right;">-19.5828     </td></tr>
-<tr><td style="text-align: right;">    16.7523</td><td style="text-align: right;"> -0.0486632  </td></tr>
-<tr><td style="text-align: right;">    17.119 </td><td style="text-align: right;"> -0.0133153  </td></tr>
-<tr><td style="text-align: right;">    17.4857</td><td style="text-align: right;"> -0.00280579 </td></tr>
-<tr><td style="text-align: right;">    17.8525</td><td style="text-align: right;"> -0.000452738</td></tr>
-<tr><td style="text-align: right;">    18.2192</td><td style="text-align: right;"> -5.58485e-05</td></tr>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;">-17.7731     </td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;">-28.0582     </td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;">-42.4429     </td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;">-61.5322     </td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;">-78.1677     </td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;"> -0.0414378  </td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;"> -0.0103967  </td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;"> -0.00204708 </td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;"> -0.000314067</td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;"> -3.7412e-05 </td></tr>
 </tbody>
 </table></div></div>
 </div>
 <p>This cannot be a good thing - the rise above zero at about 5 means that if we are sitting above 10 there will be false local minimum - and the cut would be driven away from that location. This is not a good behavior for ML training, I would guess.</p>
+<p>And lets to the same for the squares difference.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">write_and_run</span> -a jax_cuts.py
+
+
+def loss_squares(f: Callable, sig_j, back_j):
+    &#39;&#39;&#39;Calculate the loss which is the sum of the squares of the difference.
+
+    Args:
+        f (Callable): Cut we are to measure the loss against
+        sig_j (array): Signal data
+        back_j (array): Background Data
+    &#39;&#39;&#39;
+    return jnp.sum(jnp.square((1-f(sig_j)))) + jnp.sum(jnp.square(f(back_j)))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">,</span> <span class="s1">&#39;Sum of Squares&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/different_cut_emulations_23_0.png" src="_images/different_cut_emulations_23_0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_erf</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="s1">&#39;sum of squares&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/different_cut_emulations_24_0.png" src="_images/different_cut_emulations_24_0.png" />
+<div class="output text_html"><table>
+<thead>
+<tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">    Gradient</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;">-0.000504125</td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;">-0.00361745 </td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;">-0.0202648  </td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;">-0.0888767  </td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;">-0.305704   </td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;">-0.000659615</td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;">-3.87915e-05</td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;">-1.39066e-06</td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;">-3.01843e-08</td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;">-4.00399e-10</td></tr>
+</tbody>
+</table></div></div>
+</div>
 </section>
 <section id="sigmoid-function">
 <h2>Sigmoid Function<a class="headerlink" href="#sigmoid-function" title="Permalink to this headline">#</a></h2>
@@ -670,66 +721,28 @@ def cut_sigmoid(cut: float, data):
 <p>Now we make the basic info plots for the average weight and the <span class="math notranslate nohighlight">\(S/\sqrt{B}\)</span>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_avg_weight</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_avg_weight</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_24_0.png" src="_images/different_cut_emulations_24_0.png" />
+<img alt="_images/different_cut_emulations_28_0.png" src="_images/different_cut_emulations_28_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_s_sqrt_b</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_25_0.png" src="_images/different_cut_emulations_25_0.png" />
+<img alt="_images/different_cut_emulations_29_0.png" src="_images/different_cut_emulations_29_0.png" />
 </div>
 </div>
 <p>And finally the gradient</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">sig_sqrt_b</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_27_0.png" src="_images/different_cut_emulations_27_0.png" />
-<div class="output text_html"><table>
-<thead>
-<tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">    Gradient</th></tr>
-</thead>
-<tbody>
-<tr><td style="text-align: right;">   -18.0856</td><td style="text-align: right;"> 8.77184e-05</td></tr>
-<tr><td style="text-align: right;">   -17.7188</td><td style="text-align: right;"> 0.000124676</td></tr>
-<tr><td style="text-align: right;">   -17.3521</td><td style="text-align: right;"> 0.000176179</td></tr>
-<tr><td style="text-align: right;">   -16.9854</td><td style="text-align: right;"> 0.000247079</td></tr>
-<tr><td style="text-align: right;">   -16.6187</td><td style="text-align: right;"> 0.000343248</td></tr>
-<tr><td style="text-align: right;">    16.7523</td><td style="text-align: right;">-0.0100272  </td></tr>
-<tr><td style="text-align: right;">    17.119 </td><td style="text-align: right;">-0.00814901 </td></tr>
-<tr><td style="text-align: right;">    17.4857</td><td style="text-align: right;">-0.00665744 </td></tr>
-<tr><td style="text-align: right;">    17.8525</td><td style="text-align: right;">-0.00546376 </td></tr>
-<tr><td style="text-align: right;">    18.2192</td><td style="text-align: right;">-0.00450082 </td></tr>
-</tbody>
-</table></div></div>
-</div>
-<p>As we can see this approach suffers from similar problems. That said, it does behave more nicely than the error function I’ve been using up to now - and it takes longer before it trails off to “zero” here.</p>
-<p>And we can do the same thing for binary cross entropy, and plot the gradient as well. They both have similar characteristics.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_x_entropy</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_30_0.png" src="_images/different_cut_emulations_30_0.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">x_entropy</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -737,19 +750,86 @@ def cut_sigmoid(cut: float, data):
 <img alt="_images/different_cut_emulations_31_0.png" src="_images/different_cut_emulations_31_0.png" />
 <div class="output text_html"><table>
 <thead>
+<tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">   Gradient</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;"> 0.00258652</td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;"> 0.00365033</td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;"> 0.00512057</td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;"> 0.00712623</td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;"> 0.00981836</td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;">-0.0498758 </td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;">-0.0406046 </td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;">-0.0332585 </td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;">-0.0273771 </td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;">-0.0226232 </td></tr>
+</tbody>
+</table></div></div>
+</div>
+<p>As we can see this approach suffers from similar problems. That said, it does behave more nicely than the error function I’ve been using up to now - and it takes longer before it trails off to “zero” here.</p>
+<p>And we can do the same thing for binary cross entropy, and plot the gradient as well. They both have similar characteristics.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">,</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/different_cut_emulations_34_0.png" src="_images/different_cut_emulations_34_0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/different_cut_emulations_35_0.png" src="_images/different_cut_emulations_35_0.png" />
+<div class="output text_html"><table>
+<thead>
 <tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">  Gradient</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: right;">   -18.0856</td><td style="text-align: right;"> -1680.77 </td></tr>
-<tr><td style="text-align: right;">   -17.7188</td><td style="text-align: right;"> -1905.52 </td></tr>
-<tr><td style="text-align: right;">   -17.3521</td><td style="text-align: right;"> -2147.97 </td></tr>
-<tr><td style="text-align: right;">   -16.9854</td><td style="text-align: right;"> -2407.04 </td></tr>
-<tr><td style="text-align: right;">   -16.6187</td><td style="text-align: right;"> -2678.55 </td></tr>
-<tr><td style="text-align: right;">    16.7523</td><td style="text-align: right;">   858.979</td></tr>
-<tr><td style="text-align: right;">    17.119 </td><td style="text-align: right;">   815.681</td></tr>
-<tr><td style="text-align: right;">    17.4857</td><td style="text-align: right;">   763.545</td></tr>
-<tr><td style="text-align: right;">    17.8525</td><td style="text-align: right;">   702.936</td></tr>
-<tr><td style="text-align: right;">    18.2192</td><td style="text-align: right;">   635.08 </td></tr>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;">  -2288.73</td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;">  -2543.81</td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;">  -2814.76</td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;">  -3100.17</td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;">  -3397.06</td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;">   7925.23</td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;">   7369.61</td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;">   6736.83</td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;">   6042.33</td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;">   5308.73</td></tr>
+</tbody>
+</table></div></div>
+</div>
+<p>And for the sum of the squares for comparison:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_loss</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">,</span> <span class="s1">&#39;sum of squares&#39;</span><span class="p">)</span>
+<span class="n">plot_grad</span><span class="p">(</span><span class="n">cut_sigmoid</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="s1">&#39;sum of squares&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/different_cut_emulations_37_0.png" src="_images/different_cut_emulations_37_0.png" />
+<img alt="_images/different_cut_emulations_37_1.png" src="_images/different_cut_emulations_37_1.png" />
+<div class="output text_html"><table>
+<thead>
+<tr><th style="text-align: right;">  Cut Value</th><th style="text-align: right;">  Gradient</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: right;">   -17.0294</td><td style="text-align: right;">-1.01523  </td></tr>
+<tr><td style="text-align: right;">   -16.669 </td><td style="text-align: right;">-1.42214  </td></tr>
+<tr><td style="text-align: right;">   -16.3085</td><td style="text-align: right;">-1.97507  </td></tr>
+<tr><td style="text-align: right;">   -15.9481</td><td style="text-align: right;">-2.71298  </td></tr>
+<tr><td style="text-align: right;">   -15.5877</td><td style="text-align: right;">-3.67674  </td></tr>
+<tr><td style="text-align: right;">    17.2099</td><td style="text-align: right;"> 0.0795874</td></tr>
+<tr><td style="text-align: right;">    17.5703</td><td style="text-align: right;"> 0.0679395</td></tr>
+<tr><td style="text-align: right;">    17.9308</td><td style="text-align: right;"> 0.054826 </td></tr>
+<tr><td style="text-align: right;">    18.2912</td><td style="text-align: right;"> 0.0424349</td></tr>
+<tr><td style="text-align: right;">    18.6516</td><td style="text-align: right;"> 0.0318627</td></tr>
 </tbody>
 </table></div></div>
 </div>
@@ -767,14 +847,16 @@ def cut_sigmoid(cut: float, data):
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="n">plot_s_sqrt_b_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">sig_sqrt_b</span><span class="p">)</span>
-<span class="n">plot_s_sqrt_b_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">,</span> <span class="n">x_entropy</span><span class="p">)</span>
+<span class="n">plot_s_sqrt_b_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">)</span>
+<span class="n">plot_s_sqrt_b_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">)</span>
+<span class="n">plot_s_sqrt_b_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;sum of squares&#39;</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_33_0.png" src="_images/different_cut_emulations_33_0.png" />
-<img alt="_images/different_cut_emulations_33_1.png" src="_images/different_cut_emulations_33_1.png" />
+<img alt="_images/different_cut_emulations_39_0.png" src="_images/different_cut_emulations_39_0.png" />
+<img alt="_images/different_cut_emulations_39_1.png" src="_images/different_cut_emulations_39_1.png" />
+<img alt="_images/different_cut_emulations_39_2.png" src="_images/different_cut_emulations_39_2.png" />
 </div>
 </div>
 <p>You can see the differences better here where the derivatives are zero. This will, of course, have some implication for physics.</p>
@@ -798,14 +880,16 @@ def cut_sigmoid(cut: float, data):
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="n">plot_grad_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">sig_sqrt_b</span><span class="p">)</span>
-<span class="n">plot_grad_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">,</span> <span class="n">x_entropy</span><span class="p">)</span>
+<span class="n">plot_grad_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="sa">r</span><span class="s1">&#39;$S/\sqrt</span><span class="si">{B}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">loss_sig_sqrt_b</span><span class="p">)</span>
+<span class="n">plot_grad_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;binary x-entropy&#39;</span><span class="p">,</span> <span class="n">loss_x_entropy</span><span class="p">)</span>
+<span class="n">plot_grad_multi</span><span class="p">({</span><span class="s1">&#39;erf&#39;</span><span class="p">:</span> <span class="n">cut_erf</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">cut_sigmoid</span><span class="p">},</span> <span class="s1">&#39;sum of squares&#39;</span><span class="p">,</span> <span class="n">loss_squares</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/different_cut_emulations_35_0.png" src="_images/different_cut_emulations_35_0.png" />
-<img alt="_images/different_cut_emulations_35_1.png" src="_images/different_cut_emulations_35_1.png" />
+<img alt="_images/different_cut_emulations_41_0.png" src="_images/different_cut_emulations_41_0.png" />
+<img alt="_images/different_cut_emulations_41_1.png" src="_images/different_cut_emulations_41_1.png" />
+<img alt="_images/different_cut_emulations_41_2.png" src="_images/different_cut_emulations_41_2.png" />
 </div>
 </div>
 <p>Off these three, the binary x-entropy with the sigmoid seems to be the best behaved - we don’t get into those situations where the derivative is zero. However, this may also be because it is so broad - and you might want to make it more narrow - and that will affect, of course, the accuracy of the result.</p>
