@@ -5,7 +5,7 @@ import numpy as np
 np.random.seed(19680801)
 
 # Sizes of the samples
-N_sig = 1000
+N_sig = 10000
 N_back = 10000
 
 sig_avg = 5.0

@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import jax
+from typing import Callable
 
 
 def cut_erf(cut: float, data):
@@ -7,7 +8,7 @@ def cut_erf(cut: float, data):
     return (jax.lax.erf(data - cut) + 1) / 2.0
 
 
-def sig_sqrt_b(f, sig_j, back_j):
+def loss_sig_sqrt_b(f, sig_j, back_j):
     "Calculate the S/sqrt(B) for two 1D numpy arrays with the cut at cut."
 
     # Weight the data and then do the sum
@@ -20,7 +21,7 @@ def sig_sqrt_b(f, sig_j, back_j):
     return S / jnp.sqrt(B)
 
 
-def x_entropy(f, sig_j, back_j):
+def loss_x_entropy(f, sig_j, back_j):
     '''Binary x-entropy for this function
 
     Args:
@@ -31,6 +32,17 @@ def x_entropy(f, sig_j, back_j):
     entropy_sig = -jnp.log(f(sig_j) + 1e-6)
     entropy_back = -jnp.log(1-f(back_j) + 1e-6)
     return jnp.sum(entropy_sig) + jnp.sum(entropy_back)
+
+
+def loss_squares(f: Callable, sig_j, back_j):
+    '''Calculate the loss which is the sum of the squares of the difference.
+
+    Args:
+        f (Callable): Cut we are to measure the loss against
+        sig_j (array): Signal data
+        back_j (array): Background Data
+    '''
+    return jnp.sum(jnp.square((1-f(sig_j)))) + jnp.sum(jnp.square(f(back_j)))
 
 
 def cut_sigmoid(cut: float, data):
