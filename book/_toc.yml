@@ -7,8 +7,8 @@ chapters:
 - file: basic
 - file: jax
 - file: jax_optimization
-- file: different_cut_emulations
 - file: ml_loss
+- file: different_cut_emulations
 - file: dumb_data_source
 - file: using_nn
 - file: cut_then_nn
