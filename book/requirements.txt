@@ -9,3 +9,4 @@ ghp-import
 jupyter-book
 flake8
 black
+ipympl
