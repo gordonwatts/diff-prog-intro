@@ -46,17 +46,27 @@ class Selection(hk.Module):
         cut_data_pairing = [
             (cuts[index], x[:, index]) for index in range(0, x.shape[1])
         ]
-        wts = jnp.stack(
-            [self._f_cut(c, x_col) for c, x_col in cut_data_pairing], axis=1
-        )
+        wts = jnp.stack([self._f_cut(c, x_col) for c, x_col in cut_data_pairing],
+                        axis=1)
 
         return jnp.prod(wts, axis=1)
 
 
 def default_loss(preds, actual):
     upped = jax.nn.sigmoid(preds)
-    print(preds.shape, actual.shape)
     return optax.softmax_cross_entropy(upped, actual)
+
+
+# Build the loss function
+def loss_calc(model, key, use_loss_function):
+    "Higher order function to return the loss function"
+
+    def calc(weights, input_data, actual):
+        preds = model.apply(weights, key, input_data)
+        preds = preds.squeeze()
+        return use_loss_function(preds, actual)
+
+    return calc
 
 
 def train(
@@ -67,6 +77,7 @@ def train(
     training_truth,
     learning_rate=0.002,
     use_loss_function=default_loss,
+    epoch_callback=None,
 ) -> Dict:
     """Run the training with the specified loss and model.
 
@@ -82,6 +93,10 @@ def train(
                                  each training data entry.
         learning_rate (float, optional): How quickly to adjust the adam optimizer.
                                          Defaults to 0.002.
+        use_loss_function (Callable): The loss function that does the actual loss
+                                      calc.
+        epoch_callback (Callable, optional): called with (epoch_index, parameters) after
+                                             each training epoch.
 
     Returns:
         Dict: The final training parameters.
@@ -94,16 +109,9 @@ def train(
     opt_init, opt_update = optax.chain(optax.adam(learning_rate), optax.zero_nans())
     opt_state = opt_init(params)
 
-    # Build the loss function
-    def loss_func(weights, input_data, actual):
-        "Calc the loss function"
-        preds = model.apply(weights, key, input_data)
-        preds = preds.squeeze()
-        return use_loss_function(preds, actual)
-        # preds = jax.nn.sigmoid(preds)
-        # return optax.softmax_cross_entropy(preds, actual)
-
-    neg_loss_func = jax.jit(jax.value_and_grad(loss_func))
+    neg_loss_func = jax.jit(
+        jax.value_and_grad(loss_calc(model, key, use_loss_function))
+    )
 
     # Train
     report_interval = int(epochs / 10)
@@ -123,6 +131,9 @@ def train(
             params = old_params
             loss = old_loss
             bad_loss = True
+
+        if epoch_callback is not None:
+            epoch_callback(i, params)
 
         if i % report_interval == 0 or i == 1 or bad_loss:
             print(f"NegLogLoss : {loss:.2f}, epoch: {i}")
