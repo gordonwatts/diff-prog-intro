@@ -48,3 +48,9 @@ def loss_squares(f: Callable, sig_j, back_j):
 def cut_sigmoid(cut: float, data):
     slope = 1.0
     return 1 / (1 + jnp.exp(-slope * (data - cut)))
+
+
+def cut_sigmoid_balenced(cut: float, data):
+    slope = 1.0
+    s = 1 / (1 + jnp.exp(-slope * (data - cut)))
+    return s*2.0 - 1.0
