@@ -50,7 +50,7 @@ def cut_sigmoid(cut: float, data):
     return 1 / (1 + jnp.exp(-slope * (data - cut)))
 
 
-def cut_sigmoid_balenced(cut: float, data):
+def cut_sigmoid_balanced(cut: float, data):
     slope = 1.0
     s = 1 / (1 + jnp.exp(-slope * (data - cut)))
     return s*2.0 - 1.0
