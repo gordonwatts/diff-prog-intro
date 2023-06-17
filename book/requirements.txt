@@ -1,5 +1,5 @@
 numpy
-jax[cpu]
+jax[gpu]
 dm-haiku
 optax
 matplotlib
